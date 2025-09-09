@@ -71,5 +71,34 @@ export class ProductServiceStack extends cdk.Stack {
       }
     );
 
+    // === Docs lambdas ===
+    const openApiJsonLambda = new lambdaNodejs.NodejsFunction(this, 'OpenApiJsonLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      entry: path.join(__dirname, '../lib/lambda/docs/getOpenApiJson.ts'),
+      handler: 'main',
+      bundling: { minify: true, target: 'es2020', sourceMap: false },
+    });
+
+    const swaggerUiLambda = new lambdaNodejs.NodejsFunction(this, 'SwaggerUiLambda', {
+      runtime: lambda.Runtime.NODEJS_20_X,
+      entry: path.join(__dirname, '../lib/lambda/docs/getSwaggerUi.ts'),
+      handler: 'main',
+      bundling: { minify: true, target: 'es2020', sourceMap: false },
+    });
+
+    // === Swagger/OpenAPI endpoints ===
+    api.root.addResource('openapi.json').addMethod(
+      'GET',
+      new apigateway.LambdaIntegration(openApiJsonLambda),
+      { methodResponses: [{ statusCode: '200' }] }
+    );
+
+    api.root.addResource('docs').addMethod(
+      'GET',
+      new apigateway.LambdaIntegration(swaggerUiLambda),
+      {
+        methodResponses: [{ statusCode: '200' }],
+      }
+    );
   }
 }

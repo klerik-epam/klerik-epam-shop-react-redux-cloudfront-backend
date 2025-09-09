@@ -4,6 +4,9 @@ This is a blank project for CDK development with TypeScript.
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
+https://n41zqxua42.execute-api.us-east-1.amazonaws.com/dev/docs - swagger
+https://n41zqxua42.execute-api.us-east-1.amazonaws.com/dev/openapi.json - openapi
+
 ## Useful commands
 
 * `npm run build`   compile typescript to js
