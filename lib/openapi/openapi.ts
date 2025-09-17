@@ -1,4 +1,3 @@
-// lib/openapi/openapi.ts
 export const openapi = {
   openapi: '3.0.3',
   info: {
@@ -7,7 +6,6 @@ export const openapi = {
     description: 'Swagger/OpenAPI documentation for Product Service',
   },
   servers: [
-    // Можеш підставити реальний URL після деплою або лишити відносні шляхи
     { url: '/' }
   ],
   paths: {
@@ -30,6 +28,36 @@ export const openapi = {
           '500': { $ref: '#/components/responses/InternalError' },
         },
       },
+      post: {
+        summary: 'Create a new product',
+        operationId: 'createProduct',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/NewProduct' }
+            }
+          }
+        },
+        responses: {
+          '201': {
+            description: 'Product created successfully',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string', example: 'Product created successfully' },
+                    id: { type: 'string', example: '550e8400-e29b-41d4-a716-446655440000' }
+                  }
+                }
+              }
+            }
+          },
+          '400': { $ref: '#/components/responses/BadRequest' },
+          '500': { $ref: '#/components/responses/InternalError' }
+        }
+      }
     },
     '/products/{productId}': {
       get: {
@@ -68,9 +96,20 @@ export const openapi = {
           title: { type: 'string', example: 'Gold Ring with Diamond' },
           price: { type: 'number', example: 49.9 },
           description: { type: 'string', example: 'Elegant 14K gold ring featuring a 0.5 carat natural diamond. A timeless choice for special occasions.' },
+          count: { type: 'integer', example: 5 }
         },
-        required: ['id', 'title', 'price', 'description'],
+        required: ['id', 'title', 'price', 'description', 'count'],
       },
+      NewProduct: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', example: 'New Product' },
+          description: { type: 'string', example: 'This is a new product' },
+          price: { type: 'number', example: 100 },
+          count: { type: 'integer', example: 10 }
+        },
+        required: ['title', 'description', 'price', 'count']
+      }
     },
     responses: {
       BadRequest: {

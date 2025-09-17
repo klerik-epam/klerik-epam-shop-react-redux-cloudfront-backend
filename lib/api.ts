@@ -6,6 +6,7 @@ export function createApi(
   lambdas: {
     getProductsListLambda: apigateway.LambdaIntegration;
     getProductByIdLambda: apigateway.LambdaIntegration;
+    createProductLambda: apigateway.LambdaIntegration;
     openApiJsonLambda: apigateway.LambdaIntegration;
     swaggerUiLambda: apigateway.LambdaIntegration;
   }
@@ -20,9 +21,17 @@ export function createApi(
     deployOptions: { stageName: 'dev' }
   });
 
+  // POST /product
   const productsResource = api.root.addResource('product');
-  const availableResource = productsResource.addResource('available');
+  productsResource.addMethod('POST', lambdas.createProductLambda, {
+    methodResponses: [
+      { statusCode: '201' },
+      { statusCode: '400' },
+      { statusCode: '500' }
+    ]
+  });
 
+  const availableResource = productsResource.addResource('available');
   availableResource.addMethod('GET', lambdas.getProductsListLambda, {
     methodResponses: [{ statusCode: '200' }]
   });

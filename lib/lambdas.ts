@@ -18,6 +18,13 @@ export function createLambdas(scope: Construct) {
     bundling: { minify: true, target: 'es2020', sourceMap: false }
   });
 
+  const createProductLambda = new lambdaNodejs.NodejsFunction(scope, 'CreateProductLambda', {
+    runtime: lambda.Runtime.NODEJS_20_X,
+    entry: path.join(__dirname, '../lib/lambda/handlers/createProduct.js'),
+    handler: 'main',
+    bundling: { minify: true, target: 'es2020', sourceMap: false }
+  });
+
   const openApiJsonLambda = new lambdaNodejs.NodejsFunction(scope, 'OpenApiJsonLambda', {
     runtime: lambda.Runtime.NODEJS_20_X,
     entry: path.join(__dirname, '../lib/lambda/docs/getOpenApiJson.js'),
@@ -32,5 +39,11 @@ export function createLambdas(scope: Construct) {
     bundling: { minify: true, target: 'es2020', sourceMap: false }
   });
 
-  return { getProductsListLambda, getProductByIdLambda, openApiJsonLambda, swaggerUiLambda };
+  return {
+    getProductsListLambda,
+    getProductByIdLambda,
+    createProductLambda,
+    openApiJsonLambda,
+    swaggerUiLambda
+  };
 }

@@ -9,28 +9,35 @@ export class ProductServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // 1. Таблиці
-
     const { productsTable, stockTable } = createDynamoTables(this);
-    // 2. Lambda
     const lambdasRaw = createLambdas(this);
 
-    // 3. Додаємо доступ для Lambda
+    // --- Read Access ---
     productsTable.grantReadData(lambdasRaw.getProductsListLambda);
     stockTable.grantReadData(lambdasRaw.getProductsListLambda);
+
     productsTable.grantReadData(lambdasRaw.getProductByIdLambda);
     stockTable.grantReadData(lambdasRaw.getProductByIdLambda);
 
-    // Передати назви таблиць у Lambda
+    // --- Write Access for CreateProduct ---
+    productsTable.grantWriteData(lambdasRaw.createProductLambda);
+    stockTable.grantWriteData(lambdasRaw.createProductLambda);
+
+    // --- Env variables ---
     lambdasRaw.getProductsListLambda.addEnvironment("PRODUCTS_TABLE", productsTable.tableName);
     lambdasRaw.getProductsListLambda.addEnvironment("STOCK_TABLE", stockTable.tableName);
+
     lambdasRaw.getProductByIdLambda.addEnvironment("PRODUCTS_TABLE", productsTable.tableName);
     lambdasRaw.getProductByIdLambda.addEnvironment("STOCK_TABLE", stockTable.tableName);
 
-    // 4. API Gateway
+    lambdasRaw.createProductLambda.addEnvironment('PRODUCTS_TABLE', productsTable.tableName);
+    lambdasRaw.createProductLambda.addEnvironment('STOCK_TABLE', stockTable.tableName);
+
+    // --- API Gateway ---
     createApi(this, {
       getProductsListLambda: new apigateway.LambdaIntegration(lambdasRaw.getProductsListLambda),
       getProductByIdLambda: new apigateway.LambdaIntegration(lambdasRaw.getProductByIdLambda),
+      createProductLambda: new apigateway.LambdaIntegration(lambdasRaw.createProductLambda),
       openApiJsonLambda: new apigateway.LambdaIntegration(lambdasRaw.openApiJsonLambda),
       swaggerUiLambda: new apigateway.LambdaIntegration(lambdasRaw.swaggerUiLambda)
     });
