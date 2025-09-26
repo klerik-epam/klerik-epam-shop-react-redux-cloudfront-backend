@@ -1,9 +1,9 @@
 import type { APIGatewayProxyEvent } from 'aws-lambda';
 import { makeEvent } from '../test-utils/makeEvent';
-import { products } from "../../lib/lambda/shared/products";
-import { main } from "../../lib/lambda/handlers/getProductsList";
+import { products } from "../../src/lambdas/shared/products";
+import { main } from "../../src/lambdas/products/getProductsList";
 
-jest.mock('../../lib/lambda/shared/products', () => ({
+jest.mock('../../src/lambdas/shared/products', () => ({
   products: [
     {
       id: "1",

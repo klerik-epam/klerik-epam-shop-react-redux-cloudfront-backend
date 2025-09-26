@@ -3,38 +3,38 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as lambdaNodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import { Construct } from 'constructs';
 
-export function createLambdas(scope: Construct) {
+export function createProductsLambdas(scope: Construct, bucketName?: string) {
   const getProductsListLambda = new lambdaNodejs.NodejsFunction(scope, 'GetProductsListLambda', {
     runtime: lambda.Runtime.NODEJS_20_X,
-    entry: path.join(__dirname, '../lib/lambda/handlers/getProductsList.js'),
+    entry: path.join(__dirname, '../../lambdas/products/getProductsList.ts'),
     handler: 'main',
     bundling: { minify: true, target: 'es2020', sourceMap: false }
   });
 
   const getProductByIdLambda = new lambdaNodejs.NodejsFunction(scope, 'GetProductByIdLambda', {
     runtime: lambda.Runtime.NODEJS_20_X,
-    entry: path.join(__dirname, '../lib/lambda/handlers/getProductById.js'),
+    entry: path.join(__dirname, '../../lambdas/products/getProductById.ts'),
     handler: 'main',
     bundling: { minify: true, target: 'es2020', sourceMap: false }
   });
 
   const createProductLambda = new lambdaNodejs.NodejsFunction(scope, 'CreateProductLambda', {
     runtime: lambda.Runtime.NODEJS_20_X,
-    entry: path.join(__dirname, '../lib/lambda/handlers/createProduct.js'),
+    entry: path.join(__dirname, '../../lambdas/products/createProduct.ts'),
     handler: 'main',
     bundling: { minify: true, target: 'es2020', sourceMap: false }
   });
 
   const openApiJsonLambda = new lambdaNodejs.NodejsFunction(scope, 'OpenApiJsonLambda', {
     runtime: lambda.Runtime.NODEJS_20_X,
-    entry: path.join(__dirname, '../lib/lambda/docs/getOpenApiJson.js'),
+    entry: path.join(__dirname, '../../lambdas/docs/getOpenApiJson.ts'),
     handler: 'main',
     bundling: { minify: true, target: 'es2020', sourceMap: false }
   });
 
   const swaggerUiLambda = new lambdaNodejs.NodejsFunction(scope, 'SwaggerUiLambda', {
     runtime: lambda.Runtime.NODEJS_20_X,
-    entry: path.join(__dirname, '../lib/lambda/docs/getSwaggerUi.js'),
+    entry: path.join(__dirname, '../../lambdas/docs/getSwaggerUi.ts'),
     handler: 'main',
     bundling: { minify: true, target: 'es2020', sourceMap: false }
   });
