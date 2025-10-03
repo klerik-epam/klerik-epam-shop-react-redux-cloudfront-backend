@@ -25,6 +25,14 @@ export function createProductsLambdas(scope: Construct, bucketName?: string) {
     bundling: { minify: true, target: 'es2020', sourceMap: false }
   });
 
+  // PUT /product/{productId}
+  const updateProductLambda = new lambdaNodejs.NodejsFunction(scope, 'UpdateProductLambda', {
+    runtime: lambda.Runtime.NODEJS_20_X,
+    entry: path.join(__dirname, '../../lambdas/products/updateProduct.ts'),
+    handler: 'main',
+    bundling: { minify: true, target: 'es2020', sourceMap: false },
+  });
+
   const openApiJsonLambda = new lambdaNodejs.NodejsFunction(scope, 'OpenApiJsonLambda', {
     runtime: lambda.Runtime.NODEJS_20_X,
     entry: path.join(__dirname, '../../lambdas/docs/getOpenApiJson.ts'),
@@ -43,6 +51,7 @@ export function createProductsLambdas(scope: Construct, bucketName?: string) {
     getProductsListLambda,
     getProductByIdLambda,
     createProductLambda,
+    updateProductLambda,
     openApiJsonLambda,
     swaggerUiLambda
   };

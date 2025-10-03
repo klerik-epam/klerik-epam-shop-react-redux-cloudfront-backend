@@ -6,8 +6,8 @@
   },
   "scripts": {
     "deploy": "npm run build && cdk deploy --all",
-    "deploy:ProductServiceStack": "cdk deploy ProductServiceStack",
-    "deploy:ImportServiceStack": "cdk deploy ImportServiceStack",
+    "deploy:ProductServiceStack": "npm run build && cdk deploy ProductServiceStack",
+    "deploy:ImportServiceStack": "npm run build && cdk deploy ImportServiceStack",
     "seed": "ts-node scripts/seed-tables.js",
     "synth": "cdk synth",
     "diff": "cdk diff",

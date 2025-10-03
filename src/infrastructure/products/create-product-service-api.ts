@@ -7,6 +7,7 @@ export function createProductServiceApi(
     getProductsListLambda: apigateway.LambdaIntegration;
     getProductByIdLambda: apigateway.LambdaIntegration;
     createProductLambda: apigateway.LambdaIntegration;
+    updateProductLambda: apigateway.LambdaIntegration;
     openApiJsonLambda: apigateway.LambdaIntegration;
     swaggerUiLambda: apigateway.LambdaIntegration;
   }
@@ -45,6 +46,16 @@ export function createProductServiceApi(
       { statusCode: '400' },
       { statusCode: '404' },
       { statusCode: '500' }
+    ],
+  });
+
+  // PUT /product/{productId}
+  productId.addMethod('PUT', lambdas.updateProductLambda, {
+    methodResponses: [
+      { statusCode: '200' },
+      { statusCode: '400' },
+      { statusCode: '404' },
+      { statusCode: '500' },
     ],
   });
 

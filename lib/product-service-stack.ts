@@ -12,28 +12,34 @@ export class ProductServiceStack extends cdk.Stack {
     const { productsTable, stockTable } = createProductsTables(this);
     const lambdasRaw = createProductsLambdas(this);
 
+    // READ
     productsTable.grantReadData(lambdasRaw.getProductsListLambda);
     stockTable.grantReadData(lambdasRaw.getProductsListLambda);
-
     productsTable.grantReadData(lambdasRaw.getProductByIdLambda);
     stockTable.grantReadData(lambdasRaw.getProductByIdLambda);
 
+    // WRITE (create + update)
     productsTable.grantWriteData(lambdasRaw.createProductLambda);
     stockTable.grantWriteData(lambdasRaw.createProductLambda);
+    productsTable.grantWriteData(lambdasRaw.updateProductLambda);
+    stockTable.grantWriteData(lambdasRaw.updateProductLambda);
 
-    lambdasRaw.getProductsListLambda.addEnvironment("PRODUCTS_TABLE", productsTable.tableName);
-    lambdasRaw.getProductsListLambda.addEnvironment("STOCK_TABLE", stockTable.tableName);
-
-    lambdasRaw.getProductByIdLambda.addEnvironment("PRODUCTS_TABLE", productsTable.tableName);
-    lambdasRaw.getProductByIdLambda.addEnvironment("STOCK_TABLE", stockTable.tableName);
-
-    lambdasRaw.createProductLambda.addEnvironment('PRODUCTS_TABLE', productsTable.tableName);
-    lambdasRaw.createProductLambda.addEnvironment('STOCK_TABLE', stockTable.tableName);
+    // ENV
+    for (const fn of [
+      lambdasRaw.getProductsListLambda,
+      lambdasRaw.getProductByIdLambda,
+      lambdasRaw.createProductLambda,
+      lambdasRaw.updateProductLambda,
+    ]) {
+      fn.addEnvironment('PRODUCTS_TABLE', productsTable.tableName);
+      fn.addEnvironment('STOCK_TABLE', stockTable.tableName);
+    }
 
     createProductServiceApi(this, {
       getProductsListLambda: new apigateway.LambdaIntegration(lambdasRaw.getProductsListLambda),
       getProductByIdLambda: new apigateway.LambdaIntegration(lambdasRaw.getProductByIdLambda),
       createProductLambda: new apigateway.LambdaIntegration(lambdasRaw.createProductLambda),
+      updateProductLambda: new apigateway.LambdaIntegration(lambdasRaw.updateProductLambda),
       openApiJsonLambda: new apigateway.LambdaIntegration(lambdasRaw.openApiJsonLambda),
       swaggerUiLambda: new apigateway.LambdaIntegration(lambdasRaw.swaggerUiLambda)
     });
