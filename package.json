@@ -5,10 +5,11 @@
     "infra": "bin/infra.js"
   },
   "scripts": {
-    "deploy": "cdk deploy",
-    "deploy:stack": "npm run build:lambda && cdk deploy ProductServiceStack",
-    "synth": "npm run build:lambda && cdk synth",
-    "diff": "npm run build:lambda && cdk diff",
+    "deploy": "npm run build && cdk deploy",
+    "deploy:ProductServiceStack": "cdk deploy ProductServiceStack",
+    "seed": "ts-node scripts/seed-tables.js",
+    "synth": "cdk synth",
+    "diff": "cdk diff",
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
@@ -25,8 +26,11 @@
     "typescript": "~5.6.3"
   },
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.888.0",
+    "@aws-sdk/lib-dynamodb": "^3.888.0",
     "aws-cdk-lib": "2.211.0",
     "aws-lambda": "^1.0.7",
-    "constructs": "^10.0.0"
+    "constructs": "^10.0.0",
+    "uuid": "^13.0.0"
   }
 }
