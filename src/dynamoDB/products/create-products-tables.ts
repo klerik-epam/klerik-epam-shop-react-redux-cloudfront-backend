@@ -2,7 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 
-export function createDynamoTables(scope: Construct) {
+export function createProductsTables(scope: Construct) {
   const productsTable = new dynamodb.Table(scope, 'ProductsTable', {
     tableName: 'products',
     partitionKey: { name: 'id', type: dynamodb.AttributeType.STRING },

@@ -1,43 +1,45 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
-import { createLambdas } from "./lambdas";
-import { createApi } from "./api";
-import { createDynamoTables } from "./dynamodb";
+import { createProductsLambdas } from "../src/infrastructure/products/create-products-lambdas";
+import { createProductServiceApi } from "../src/infrastructure/products/create-product-service-api";
+import { createProductsTables } from "../src/dynamoDB/products/create-products-tables";
 
 export class ProductServiceStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const { productsTable, stockTable } = createDynamoTables(this);
-    const lambdasRaw = createLambdas(this);
+    const { productsTable, stockTable } = createProductsTables(this);
+    const lambdasRaw = createProductsLambdas(this);
 
-    // --- Read Access ---
+    // READ
     productsTable.grantReadData(lambdasRaw.getProductsListLambda);
     stockTable.grantReadData(lambdasRaw.getProductsListLambda);
-
     productsTable.grantReadData(lambdasRaw.getProductByIdLambda);
     stockTable.grantReadData(lambdasRaw.getProductByIdLambda);
 
-    // --- Write Access for CreateProduct ---
+    // WRITE (create + update)
     productsTable.grantWriteData(lambdasRaw.createProductLambda);
     stockTable.grantWriteData(lambdasRaw.createProductLambda);
+    productsTable.grantWriteData(lambdasRaw.updateProductLambda);
+    stockTable.grantWriteData(lambdasRaw.updateProductLambda);
 
-    // --- Env variables ---
-    lambdasRaw.getProductsListLambda.addEnvironment("PRODUCTS_TABLE", productsTable.tableName);
-    lambdasRaw.getProductsListLambda.addEnvironment("STOCK_TABLE", stockTable.tableName);
+    // ENV
+    for (const fn of [
+      lambdasRaw.getProductsListLambda,
+      lambdasRaw.getProductByIdLambda,
+      lambdasRaw.createProductLambda,
+      lambdasRaw.updateProductLambda,
+    ]) {
+      fn.addEnvironment('PRODUCTS_TABLE', productsTable.tableName);
+      fn.addEnvironment('STOCK_TABLE', stockTable.tableName);
+    }
 
-    lambdasRaw.getProductByIdLambda.addEnvironment("PRODUCTS_TABLE", productsTable.tableName);
-    lambdasRaw.getProductByIdLambda.addEnvironment("STOCK_TABLE", stockTable.tableName);
-
-    lambdasRaw.createProductLambda.addEnvironment('PRODUCTS_TABLE', productsTable.tableName);
-    lambdasRaw.createProductLambda.addEnvironment('STOCK_TABLE', stockTable.tableName);
-
-    // --- API Gateway ---
-    createApi(this, {
+    createProductServiceApi(this, {
       getProductsListLambda: new apigateway.LambdaIntegration(lambdasRaw.getProductsListLambda),
       getProductByIdLambda: new apigateway.LambdaIntegration(lambdasRaw.getProductByIdLambda),
       createProductLambda: new apigateway.LambdaIntegration(lambdasRaw.createProductLambda),
+      updateProductLambda: new apigateway.LambdaIntegration(lambdasRaw.updateProductLambda),
       openApiJsonLambda: new apigateway.LambdaIntegration(lambdasRaw.openApiJsonLambda),
       swaggerUiLambda: new apigateway.LambdaIntegration(lambdasRaw.swaggerUiLambda)
     });

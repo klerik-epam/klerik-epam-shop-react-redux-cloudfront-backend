@@ -5,8 +5,9 @@
     "infra": "bin/infra.js"
   },
   "scripts": {
-    "deploy": "npm run build && cdk deploy",
-    "deploy:ProductServiceStack": "cdk deploy ProductServiceStack",
+    "deploy": "npm run build && cdk deploy --all",
+    "deploy:ProductServiceStack": "npm run build && cdk deploy ProductServiceStack",
+    "deploy:ImportServiceStack": "npm run build && cdk deploy ImportServiceStack",
     "seed": "ts-node scripts/seed-tables.js",
     "synth": "cdk synth",
     "diff": "cdk diff",
@@ -27,10 +28,13 @@
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.888.0",
+    "@aws-sdk/client-s3": "^3.896.0",
     "@aws-sdk/lib-dynamodb": "^3.888.0",
+    "@aws-sdk/s3-request-presigner": "^3.896.0",
     "aws-cdk-lib": "2.211.0",
     "aws-lambda": "^1.0.7",
     "constructs": "^10.0.0",
+    "csv-parser": "^3.2.0",
     "uuid": "^13.0.0"
   }
 }

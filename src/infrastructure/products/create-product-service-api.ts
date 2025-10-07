@@ -1,12 +1,13 @@
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import { Construct } from 'constructs';
 
-export function createApi(
+export function createProductServiceApi(
   scope: Construct,
   lambdas: {
     getProductsListLambda: apigateway.LambdaIntegration;
     getProductByIdLambda: apigateway.LambdaIntegration;
     createProductLambda: apigateway.LambdaIntegration;
+    updateProductLambda: apigateway.LambdaIntegration;
     openApiJsonLambda: apigateway.LambdaIntegration;
     swaggerUiLambda: apigateway.LambdaIntegration;
   }
@@ -31,11 +32,13 @@ export function createApi(
     ]
   });
 
+  // GET /product/available
   const availableResource = productsResource.addResource('available');
   availableResource.addMethod('GET', lambdas.getProductsListLambda, {
     methodResponses: [{ statusCode: '200' }]
   });
 
+  // GET /product/{productId}
   const productId = productsResource.addResource('{productId}');
   productId.addMethod('GET', lambdas.getProductByIdLambda, {
     methodResponses: [
@@ -43,6 +46,16 @@ export function createApi(
       { statusCode: '400' },
       { statusCode: '404' },
       { statusCode: '500' }
+    ],
+  });
+
+  // PUT /product/{productId}
+  productId.addMethod('PUT', lambdas.updateProductLambda, {
+    methodResponses: [
+      { statusCode: '200' },
+      { statusCode: '400' },
+      { statusCode: '404' },
+      { statusCode: '500' },
     ],
   });
 
