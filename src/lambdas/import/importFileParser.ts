@@ -6,24 +6,38 @@ import {
   CopyObjectCommand,
   DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
+import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import csv from 'csv-parser';
 import { Readable } from 'stream';
 
 const s3Client = new S3Client({});
+const sqsClient = new SQSClient({});
+
 const bucketName = process.env.BUCKET_NAME!;
+const sqsUrl = process.env.SQS_URL!;
+
 const UPLOADED_PREFIX = 'uploaded/';
 const PARSED_PREFIX = 'parsed/';
 
 const makeCopySource = (bucket: string, key: string) =>
   `${bucket}/${encodeURIComponent(key)}`;
 
-
-function parseCsvStream(stream: Readable): Promise<void> {
+function parseCsvStreamAndSendToSqs(stream: Readable): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     stream
       .pipe(csv())
-      .on('data', (row) => {
-        console.log('Parsed row:', row);
+      .on('data', async (row) => {
+        try {
+          console.log('Sending parsed row to SQS:', row);
+          await sqsClient.send(
+            new SendMessageCommand({
+              QueueUrl: sqsUrl,
+              MessageBody: JSON.stringify(row),
+            })
+          );
+        } catch (err) {
+          console.error('Failed to send message to SQS:', err);
+        }
       })
       .on('end', () => {
         resolve();
@@ -56,9 +70,11 @@ export const main: Handler = async (event: S3Event) => {
         continue;
       }
 
-      await parseCsvStream(bodyStream);
-      console.log(`CSV file ${key} successfully processed.`);
+      // ✅ Parse CSV and send each row to SQS
+      await parseCsvStreamAndSendToSqs(bodyStream);
+      console.log(`CSV file ${key} successfully processed and sent to SQS.`);
 
+      // Copy to "parsed" folder
       const parsedKey = key.replace(/^uploaded\//, PARSED_PREFIX);
       await s3Client.send(
         new CopyObjectCommand({
@@ -69,6 +85,7 @@ export const main: Handler = async (event: S3Event) => {
       );
       console.log(`Copied to ${parsedKey}`);
 
+      // Delete original
       await s3Client.send(
         new DeleteObjectCommand({ Bucket: bucketName, Key: key })
       );
