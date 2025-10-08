@@ -47,12 +47,21 @@ export function createProductsLambdas(scope: Construct, bucketName?: string) {
     bundling: { minify: true, target: 'es2020', sourceMap: false }
   });
 
+  // НОВЕ: Batch процес через SQS
+  const catalogBatchProcessLambda = new lambdaNodejs.NodejsFunction(scope, 'CatalogBatchProcessLambda', {
+    runtime: lambda.Runtime.NODEJS_20_X,
+    entry: path.join(__dirname, '../../lambdas/products/catalogBatchProcess.ts'),
+    handler: 'main',
+    bundling: { minify: true, target: 'es2020', sourceMap: false }
+  });
+
   return {
     getProductsListLambda,
     getProductByIdLambda,
     createProductLambda,
     updateProductLambda,
     openApiJsonLambda,
-    swaggerUiLambda
+    swaggerUiLambda,
+    catalogBatchProcessLambda
   };
 }

@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as sqs from 'aws-cdk-lib/aws-sqs';
 import { Construct } from 'constructs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import { createImportBucket } from "../src/s3/import/import-bucket";
@@ -20,6 +21,17 @@ export class ImportServiceStack extends cdk.Stack {
     createImportServiceApi(this, {
       importProductsFileLambda: new apigateway.LambdaIntegration(lambdasRaw.importProductsFileLambda),
     })
+
+    // Підключення до SQS з Product Service
+    const catalogItemsQueue = sqs.Queue.fromQueueArn(
+      this,
+      'CatalogItemsQueueImported',
+      `arn:aws:sqs:${this.region}:${this.account}:catalogItemsQueue`
+    );
+
+    catalogItemsQueue.grantSendMessages(lambdasRaw.importFileParserLambda);
+
+    lambdasRaw.importFileParserLambda.addEnvironment('SQS_URL', catalogItemsQueue.queueUrl);
 
     // S3 Trigger: викликати лямбду при додаванні файлу в папку "uploaded/"
     lambdasRaw.importFileParserLambda.addEventSource(new lambdaEvents.S3EventSource(importBucket, {
