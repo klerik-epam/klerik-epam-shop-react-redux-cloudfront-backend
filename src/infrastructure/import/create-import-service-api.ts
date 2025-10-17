@@ -5,6 +5,7 @@ export function createImportServiceApi(
   scope: Construct,
   lambdas: {
     importProductsFileLambda: apigateway.LambdaIntegration;
+    authorizer: apigateway.IAuthorizer;
   }
 ) {
   const importServiceApi = new apigateway.RestApi(scope, 'ImportServiceApi', {
@@ -17,10 +18,11 @@ export function createImportServiceApi(
     deployOptions: { stageName: 'dev' }
   });
 
-  // GET /import
   const importResource = importServiceApi.root.addResource('import');
 
   importResource.addMethod('GET', lambdas.importProductsFileLambda, {
-    methodResponses: [{ statusCode: '200' }]
+    methodResponses: [{ statusCode: '200' }],
+    authorizer: lambdas.authorizer,
+    authorizationType: apigateway.AuthorizationType.CUSTOM,
   });
 }
