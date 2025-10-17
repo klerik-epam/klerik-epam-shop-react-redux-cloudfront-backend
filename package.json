@@ -13,7 +13,7 @@
     "diff": "cdk diff",
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "jest",
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
     "cdk": "cdk"
   },
   "devDependencies": {
@@ -29,12 +29,15 @@
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.888.0",
     "@aws-sdk/client-s3": "^3.896.0",
+    "@aws-sdk/client-sns": "^3.901.0",
+    "@aws-sdk/client-sqs": "^3.901.0",
     "@aws-sdk/lib-dynamodb": "^3.888.0",
     "@aws-sdk/s3-request-presigner": "^3.896.0",
     "aws-cdk-lib": "2.211.0",
     "aws-lambda": "^1.0.7",
     "constructs": "^10.0.0",
     "csv-parser": "^3.2.0",
+    "dotenv": "^17.2.3",
     "uuid": "^13.0.0"
   }
 }
